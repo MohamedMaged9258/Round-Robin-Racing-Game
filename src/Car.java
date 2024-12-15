@@ -13,24 +13,21 @@ public class Car extends Thread {
         while (RoundRobinRacingGame.raceInProgress) {
             RoundRobinRacingGame.lock.lock();
             try {
-                RoundRobinRacingGame.condition.await(); // Wait for the scheduler's signal
+                RoundRobinRacingGame.condition.await();
 
                 if (!RoundRobinRacingGame.raceInProgress) break;
 
-                // Adjust speed based on weather
                 if ("Rain".equals(RoundRobinRacingGame.weatherCondition)) {
                     speed = Math.max(speed - 1, 1);
                 } else if ("Fog".equals(RoundRobinRacingGame.weatherCondition)) {
                     speed = Math.max(speed - 2, 1);
                 }
 
-                // Update position
                 position += speed;
                 RoundRobinRacingGame.track.set(id, position);
 
                 System.out.println("Car " + id + " moved to position " + position);
 
-                // Check for finish line
                 if (position >= RoundRobinRacingGame.track_length) {
                     RoundRobinRacingGame.raceInProgress = false;
                     System.out.println("Car " + id + " wins the race!");
@@ -41,7 +38,6 @@ public class Car extends Thread {
                 RoundRobinRacingGame.lock.unlock();
             }
 
-            // Simulate work (time slice)
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {

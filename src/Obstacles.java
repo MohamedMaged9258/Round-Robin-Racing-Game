@@ -9,7 +9,7 @@ public class Obstacles extends Thread{
 
         while (RoundRobinRacingGame.raceInProgress) {
             try {
-                Thread.sleep(10000); // Update weather every 10 seconds
+                Thread.sleep(10000);
                 RoundRobinRacingGame.weatherCondition = weatherConditions[random.nextInt(weatherConditions.length)];
                 System.out.println("Weather updated: " + RoundRobinRacingGame.weatherCondition);
             } catch (InterruptedException e) {

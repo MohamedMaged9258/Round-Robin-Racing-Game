@@ -6,42 +6,36 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class RoundRobinRacingGame {
-    public static int track_length; // Finish line position
+    public static int track_length;
     public static int num_of_cars;
     public static boolean raceInProgress = true;
     public static List<Integer> track = new ArrayList<>();
     public static String weatherCondition = "Clear";
 
-    // Synchronization primitives
     public static final Lock lock = new ReentrantLock();
     public static final Condition condition = lock.newCondition();
 
     public RoundRobinRacingGame() {
-        // Initialize the track positions
         for (int i = 0; i < num_of_cars; i++) {
             track.add(0);
         }
 
-        // Create car threads
         List<Thread> carThreads = new ArrayList<>();
         Random random = new Random();
 
         for (int i = 0; i < num_of_cars; i++) {
-            int speed = random.nextInt(6) + 5; // Random speed between 5 and 10
+            int speed = random.nextInt(6) + 5;
             carThreads.add(new Car(i, speed));
         }
 
-        // Start car threads
         for (Thread car : carThreads) {
             car.start();
         }
 
-        // Start the weather update thread
         Thread obstacles = new Obstacles();
-        obstacles.setDaemon(true); // Make it a daemon thread
+        obstacles.setDaemon(true);
         obstacles.start();
 
-        // Start the round-robin scheduler
         roundRobinScheduler(carThreads);
 
 
