@@ -26,7 +26,7 @@ public class Car extends Thread {
                 position += speed;
                 RoundRobinRacingGame.track.set(id, position);
 
-                System.out.println("Car " + id + " moved to position " + position);
+//                System.out.println("Car " + id + " moved to position " + position);
 
                 if (position >= RoundRobinRacingGame.track_length) {
                     RoundRobinRacingGame.raceInProgress = false;
