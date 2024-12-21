@@ -23,15 +23,12 @@ public class RoundRobinRacingGame {
     public RoundRobinRacingGame(int track_length, int num_of_cars) {
         RoundRobinRacingGame.track_length = track_length;
         RoundRobinRacingGame.num_of_cars = num_of_cars;
-        obstcalsPosition.add(50);
-        obstcalsPosition.add(30);
-        obstcalsTrack.add(0);
-        obstcalsTrack.add(4);
     }
 
     public void startGame() {
         carThreads = createCarThreads();
         initializeTrack();
+        createRandomObstacles(3);
         startThreads(carThreads);
         startObstaclesThread();
         runRoundRobinScheduler(carThreads);
@@ -62,16 +59,16 @@ public class RoundRobinRacingGame {
     }
 
     private void startObstaclesThread() {
-        Thread obstacles = new Obstacles();
+        Thread obstacles = new Weather();
         obstacles.setDaemon(true);
         obstacles.start();
     }
 
     private void runRoundRobinScheduler(List<Thread> carThreads) {
         while (raceInProgress) {
+            printRaceTrack();
             for (Thread car : carThreads) {
                 if (!raceInProgress) break;
-                printRaceTrack();
                 lock.lock();
                 try {
                     condition.signal();
@@ -88,6 +85,23 @@ public class RoundRobinRacingGame {
             Thread.sleep(delayMs);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    public static void createRandomObstacles(int numberOfObstacles) {
+        Random random = new Random();
+
+        for (int i = 0; i < numberOfObstacles; i++) {
+            int randomTrack;
+            int randomPosition;
+
+            do {
+                randomTrack = random.nextInt(num_of_cars);
+                randomPosition = 20 + random.nextInt(track_length - 40);
+            } while (obstcalsTrack.contains(randomTrack));
+
+            obstcalsTrack.add(randomTrack);
+            obstcalsPosition.add(randomPosition);
         }
     }
 

@@ -16,9 +16,11 @@ public class Car extends Thread {
         int num_of_cars = RoundRobinRacingGame.num_of_cars - 1;
         Random random = new Random();
 
+
         while (RoundRobinRacingGame.raceInProgress) {
             RoundRobinRacingGame.lock.lock();
             try {
+                boolean canMove = true;
                 RoundRobinRacingGame.condition.await();
 
                 if (!RoundRobinRacingGame.raceInProgress) break;
@@ -29,15 +31,13 @@ public class Car extends Thread {
                     speed = random.nextInt(3) + 4;
                 }
 
-                boolean move = true;
-                
                 for (int i = 0; i < RoundRobinRacingGame.obstcalsTrack.size(); i++) {
-                    if (RoundRobinRacingGame.obstcalsTrack.get(i) == track && RoundRobinRacingGame.obstcalsPosition.get(i) <= position+speed) {
-                        move = false;
+                    if (RoundRobinRacingGame.obstcalsTrack.get(i) == track && RoundRobinRacingGame.obstcalsPosition.get(i) <= position + speed) {
+                        canMove = false;
                         boolean canChangeTrack = true;
-                        if (track == 0 ){
+                        if (track == 0) {
                             for (int j = 0; j < RoundRobinRacingGame.carsTrack.size(); j++) {
-                                if (RoundRobinRacingGame.carsTrack.get(j) == 1 && RoundRobinRacingGame.carsPosition.get(j) <= position) {
+                                if (RoundRobinRacingGame.carsTrack.get(j) == track + 1 && RoundRobinRacingGame.carsPosition.get(j) == position) {
                                     canChangeTrack = false;
                                     break;
                                 }
@@ -46,11 +46,11 @@ public class Car extends Thread {
                                 speed = random.nextInt(6) + 5;
                                 track = 1;
                                 RoundRobinRacingGame.carsTrack.set(id, track);
-                            }else speed = 0;
-                        }else if (track == num_of_cars){
+//                                RoundRobinRacingGame.carsPosition.set(id, position - speed);
+                            } else speed = 0;
+                        } else if (track == num_of_cars) {
                             for (int j = 0; j < RoundRobinRacingGame.carsTrack.size(); j++) {
-                                if (RoundRobinRacingGame.carsTrack.get(j) == num_of_cars - 1 && RoundRobinRacingGame.carsPosition.get(j) <= position) {
-                                    System.out.println(id + " is out of the track!");
+                                if (RoundRobinRacingGame.carsTrack.get(j) == num_of_cars - 1 && RoundRobinRacingGame.carsPosition.get(j) == position) {
                                     canChangeTrack = false;
                                     break;
                                 }
@@ -59,13 +59,41 @@ public class Car extends Thread {
                                 speed = random.nextInt(6) + 5;
                                 track = num_of_cars - 1;
                                 RoundRobinRacingGame.carsTrack.set(id, track);
-                            }else speed = 0;
+//                                RoundRobinRacingGame.carsPosition.set(id, position - speed);
+                            } else speed = 0;
+                        } else {
+                            boolean previos_track_empty = true;
+                            for (int j = 0; j < RoundRobinRacingGame.carsTrack.size(); j++) {
+                                if (RoundRobinRacingGame.carsTrack.get(j) == track - 1 && RoundRobinRacingGame.carsPosition.get(j) == position) {
+                                    previos_track_empty = false;
+                                    break;
+                                }
+                            }
+                            if (previos_track_empty) {
+                                speed = random.nextInt(6) + 5;
+                                track = track - 1;
+                                RoundRobinRacingGame.carsTrack.set(id, track);
+//                                RoundRobinRacingGame.carsPosition.set(id, position - speed);
+                            } else {
+                                for (int j = 0; j < RoundRobinRacingGame.carsTrack.size(); j++) {
+                                    if (RoundRobinRacingGame.carsTrack.get(j) == track + 1 && RoundRobinRacingGame.carsPosition.get(j) == position) {
+                                        canChangeTrack = false;
+                                        break;
+                                    }
+                                }
+                                if (canChangeTrack) {
+                                    speed = random.nextInt(6) + 5;
+                                    track = track + 1;
+                                    RoundRobinRacingGame.carsTrack.set(id, track);
+//                                    RoundRobinRacingGame.carsPosition.set(id, position - speed);
+                                } else speed = 0;
+                            }
                         }
 
-                    }else move = true;
+                    } else canMove = true;
                 }
 
-                if (move) {
+                if (canMove) {
                     position += speed;
                     RoundRobinRacingGame.carsPosition.set(id, position);
                 }

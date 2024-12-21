@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class Obstacles extends Thread{
+public class Weather extends Thread{
     private final Random random = new Random();
 
     @Override
