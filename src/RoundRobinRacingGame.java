@@ -98,7 +98,7 @@ public class RoundRobinRacingGame {
             do {
                 randomTrack = random.nextInt(num_of_cars);
                 randomPosition = 20 + random.nextInt(track_length - 40);
-            } while (obstcalsTrack.contains(randomTrack));
+            } while (obstcalsTrack.contains(randomTrack) && obstcalsPosition.contains(randomPosition));
 
             obstcalsTrack.add(randomTrack);
             obstcalsPosition.add(randomPosition);
