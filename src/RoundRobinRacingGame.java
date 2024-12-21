@@ -7,10 +7,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 public class RoundRobinRacingGame {
-    public static int track_length = 100;
-    public static int num_of_cars = 5;
+    public static int track_length;
+    public static int num_of_cars;
     public static boolean raceInProgress = true;
-    public static List<Integer> track = new ArrayList<>();
+    public static List<Integer> carsPosition = new ArrayList<>();
+    public static List<Integer> obstcalsPosition = new ArrayList<>();
+    public static List<Integer> carsTrack = new ArrayList<>();
+    public static List<Integer> obstcalsTrack = new ArrayList<>();
     public static List<Thread> carThreads = new ArrayList<>();
     public static String weatherCondition = "Clear";
 
@@ -25,6 +28,7 @@ public class RoundRobinRacingGame {
     public void startGame() {
         carThreads = createCarThreads();
         initializeTrack();
+        createRandomObstacles(3);
         startThreads(carThreads);
         startObstaclesThread();
         runRoundRobinScheduler(carThreads);
@@ -33,7 +37,8 @@ public class RoundRobinRacingGame {
 
     private void initializeTrack() {
         for (int i = 0; i < num_of_cars; i++) {
-            track.add(0);
+            carsPosition.add(0);
+            carsTrack.add(i);
         }
     }
 
@@ -54,19 +59,19 @@ public class RoundRobinRacingGame {
     }
 
     private void startObstaclesThread() {
-        Thread obstacles = new Obstacles();
+        Thread obstacles = new Weather();
         obstacles.setDaemon(true);
         obstacles.start();
     }
 
     private void runRoundRobinScheduler(List<Thread> carThreads) {
         while (raceInProgress) {
+            printRaceTrack();
             for (Thread car : carThreads) {
                 if (!raceInProgress) break;
                 lock.lock();
-                printRaceTrack();
                 try {
-                    condition.signalAll();
+                    condition.signal();
                 } finally {
                     lock.unlock();
                 }
@@ -83,19 +88,53 @@ public class RoundRobinRacingGame {
         }
     }
 
+    public static void createRandomObstacles(int numberOfObstacles) {
+        Random random = new Random();
+
+        for (int i = 0; i < numberOfObstacles; i++) {
+            int randomTrack;
+            int randomPosition;
+
+            do {
+                randomTrack = random.nextInt(num_of_cars);
+                randomPosition = 20 + random.nextInt(track_length - 40);
+            } while (obstcalsTrack.contains(randomTrack) && obstcalsPosition.contains(randomPosition));
+
+            obstcalsTrack.add(randomTrack);
+            obstcalsPosition.add(randomPosition);
+        }
+    }
+
     private void announceRaceCompletion() {
         System.out.println("Race finished!");
     }
 
     public static void printRaceTrack() {
         StringBuilder trackDisplay = new StringBuilder("\nRace Track:\n");
-        for (int i = 0; i < track.size(); i++) {
+        for (int i = 0; i < carsTrack.size(); i++) {
             trackDisplay.append("Track ").append(i).append(": ");
-            int position = track.get(i);
             for (int j = 0; j < track_length; j++) {
-                if (j == position) {
-                    trackDisplay.append("|>");
-                } else {
+                boolean isPositionOccupied = false;
+                for (int k = 0; k < carsTrack.size(); k++) {
+                    if (carsTrack.get(k) == i) {
+                        int position = carsPosition.get(k);
+                        if (j == position) {
+                            trackDisplay.append("|>" + k);
+                            isPositionOccupied = true;
+                            break;
+                        }
+                    }
+                }
+                if (!isPositionOccupied) {
+                    for (int m = 0; m < obstcalsTrack.size(); m++) {
+                        if (obstcalsTrack.get(m) == i && obstcalsPosition.get(m) == j) {
+                            trackDisplay.append("X");
+                            isPositionOccupied = true;
+                            break;
+                        }
+                    }
+                }
+                if (!isPositionOccupied) {
                     trackDisplay.append("-");
                 }
             }
