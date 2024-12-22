@@ -16,7 +16,6 @@ public class Car extends Thread {
         int num_of_cars = RoundRobinRacingGame.num_of_cars - 1;
         Random random = new Random();
 
-
         while (RoundRobinRacingGame.raceInProgress) {
             RoundRobinRacingGame.lock.lock();
             try {
@@ -46,7 +45,6 @@ public class Car extends Thread {
                                 speed = random.nextInt(6) + 5;
                                 track = 1;
                                 RoundRobinRacingGame.carsTrack.set(id, track);
-//                                RoundRobinRacingGame.carsPosition.set(id, position - speed);
                             } else speed = 0;
                         } else if (track == num_of_cars) {
                             for (int j = 0; j < RoundRobinRacingGame.carsTrack.size(); j++) {
@@ -57,9 +55,8 @@ public class Car extends Thread {
                             }
                             if (canChangeTrack) {
                                 speed = random.nextInt(6) + 5;
-                                track = num_of_cars - 1;
+                                track = track - 1;
                                 RoundRobinRacingGame.carsTrack.set(id, track);
-//                                RoundRobinRacingGame.carsPosition.set(id, position - speed);
                             } else speed = 0;
                         } else {
                             boolean previos_track_empty = true;
@@ -73,7 +70,6 @@ public class Car extends Thread {
                                 speed = random.nextInt(6) + 5;
                                 track = track - 1;
                                 RoundRobinRacingGame.carsTrack.set(id, track);
-//                                RoundRobinRacingGame.carsPosition.set(id, position - speed);
                             } else {
                                 for (int j = 0; j < RoundRobinRacingGame.carsTrack.size(); j++) {
                                     if (RoundRobinRacingGame.carsTrack.get(j) == track + 1 && RoundRobinRacingGame.carsPosition.get(j) == position) {
@@ -85,7 +81,6 @@ public class Car extends Thread {
                                     speed = random.nextInt(6) + 5;
                                     track = track + 1;
                                     RoundRobinRacingGame.carsTrack.set(id, track);
-//                                    RoundRobinRacingGame.carsPosition.set(id, position - speed);
                                 } else speed = 0;
                             }
                         }

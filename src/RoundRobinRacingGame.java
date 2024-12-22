@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class RoundRobinRacingGame {
     public static int track_length;
     public static int num_of_cars;
+    public static int num_of_obstacles;
     public static boolean raceInProgress = true;
     public static List<Integer> carsPosition = new ArrayList<>();
     public static List<Integer> obstcalsPosition = new ArrayList<>();
@@ -20,17 +21,18 @@ public class RoundRobinRacingGame {
     public static final Lock lock = new ReentrantLock();
     public static final Condition condition = lock.newCondition();
 
-    public RoundRobinRacingGame(int track_length, int num_of_cars) {
+    public RoundRobinRacingGame(int track_length, int num_of_cars, int num_of_obstacles) {
         RoundRobinRacingGame.track_length = track_length;
         RoundRobinRacingGame.num_of_cars = num_of_cars;
+        RoundRobinRacingGame.num_of_obstacles = num_of_obstacles;
     }
 
     public void startGame() {
         carThreads = createCarThreads();
         initializeTrack();
-        createRandomObstacles(3);
+        createRandomObstacles();
         startThreads(carThreads);
-        startObstaclesThread();
+        startWeatherThread();
         runRoundRobinScheduler(carThreads);
         announceRaceCompletion();
     }
@@ -58,7 +60,7 @@ public class RoundRobinRacingGame {
         }
     }
 
-    private void startObstaclesThread() {
+    private void startWeatherThread() {
         Thread obstacles = new Weather();
         obstacles.setDaemon(true);
         obstacles.start();
@@ -88,10 +90,10 @@ public class RoundRobinRacingGame {
         }
     }
 
-    public static void createRandomObstacles(int numberOfObstacles) {
+    public static void createRandomObstacles() {
         Random random = new Random();
 
-        for (int i = 0; i < numberOfObstacles; i++) {
+        for (int i = 0; i < num_of_obstacles; i++) {
             int randomTrack;
             int randomPosition;
 
